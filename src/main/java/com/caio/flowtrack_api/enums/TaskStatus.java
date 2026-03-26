@@ -1,5 +1,7 @@
 package com.caio.flowtrack_api.enums;
 
 public enum TaskStatus {
-    PENDING
+    PENDING,
+    IN_PROGRESS,
+    DONE
 }
