@@ -5,6 +5,7 @@ import com.caio.flowtrack_api.entity.Task;
 import com.caio.flowtrack_api.entity.User;
 import com.caio.flowtrack_api.enums.TaskPriority;
 import com.caio.flowtrack_api.enums.TaskStatus;
+import com.caio.flowtrack_api.exception.ResourceNotFoundException;
 import com.caio.flowtrack_api.repository.ProjectRepository;
 import com.caio.flowtrack_api.repository.TaskRepository;
 import com.caio.flowtrack_api.repository.UserRepository;
@@ -27,10 +28,10 @@ public class TaskService {
         Long projectId = task.getProject().getId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         task.setUser(user);
         task.setProject(project);
@@ -60,7 +61,7 @@ public class TaskService {
 
     public Task update(Long id, Task updatedTask) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         task.setTitle(updatedTask.getTitle());
         task.setDescription(updatedTask.getDescription());
@@ -70,13 +71,13 @@ public class TaskService {
 
         if(updatedTask.getUser() != null && updatedTask.getUser().getId() != null) {
             User user = userRepository.findById(updatedTask.getUser().getId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             task.setUser(user);
         }
 
         if(updatedTask.getProject() != null && updatedTask.getProject().getId() != null) {
             Project project = projectRepository.findById(updatedTask.getProject().getId())
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
             task.setProject(project);
         }
 
