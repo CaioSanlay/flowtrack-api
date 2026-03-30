@@ -1,5 +1,6 @@
 package com.caio.flowtrack_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Project {
     private String name;
     private String description;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<Task> tasks;
 
