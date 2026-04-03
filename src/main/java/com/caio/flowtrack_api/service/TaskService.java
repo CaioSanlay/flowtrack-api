@@ -5,6 +5,7 @@ import com.caio.flowtrack_api.entity.Task;
 import com.caio.flowtrack_api.entity.User;
 import com.caio.flowtrack_api.enums.TaskPriority;
 import com.caio.flowtrack_api.enums.TaskStatus;
+import com.caio.flowtrack_api.exception.DuplicateResourceException;
 import com.caio.flowtrack_api.exception.ResourceNotFoundException;
 import com.caio.flowtrack_api.repository.ProjectRepository;
 import com.caio.flowtrack_api.repository.TaskRepository;
@@ -32,6 +33,14 @@ public class TaskService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        if (taskRepository.existsByTitleAndUserId(task.getTitle(), userId)){
+            throw new DuplicateResourceException("Task already exists for this user");
+        }
+
+        if (task.getDueDate() != null && task.getDueDate().isBefore(java.time.LocalDate.now())){
+            throw new RuntimeException("Due date cannot be in the past");
+        }
 
         task.setUser(user);
         task.setProject(project);
@@ -86,6 +95,9 @@ public class TaskService {
     }
 
     public void delete(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Task not found");
+        }
         taskRepository.deleteById(id);
     }
 
