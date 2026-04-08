@@ -1,7 +1,9 @@
 package com.caio.flowtrack_api.controller;
 
+import com.caio.flowtrack_api.dto.UserRequestDTO;
 import com.caio.flowtrack_api.entity.User;
 import com.caio.flowtrack_api.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +18,11 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody @Valid UserRequestDTO userRequestDTO) {
+        User user = new User();
+        user.setName(userRequestDTO.getName());
+        user.setEmail(userRequestDTO.getEmail());
+
         return userService.create(user);
     }
 

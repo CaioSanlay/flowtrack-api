@@ -4,10 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.error.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -91,5 +95,28 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request){
+
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Validation error");
+        response.put("message", "One or more fields are invalid");
+        response.put("path", request.getRequestURI());
+        response.put("fieldsErros", fieldErrors);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
     }
 }

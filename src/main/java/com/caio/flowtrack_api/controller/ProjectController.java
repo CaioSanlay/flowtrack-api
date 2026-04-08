@@ -1,8 +1,10 @@
 package com.caio.flowtrack_api.controller;
 
 
+import com.caio.flowtrack_api.dto.ProjectRequestDTO;
 import com.caio.flowtrack_api.entity.Project;
 import com.caio.flowtrack_api.service.ProjectService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +19,13 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public Project create(@RequestBody Project project) {
+    public Project create(@RequestBody @Valid ProjectRequestDTO projectRequestDTO) {
+        Project project = new Project();
+        project.setName(projectRequestDTO.getName());
+        project.setDescription(projectRequestDTO.getDescription());
+
         return projectService.create(project);
-    }
+}
 
     @GetMapping
     public List<Project> findAll() {
