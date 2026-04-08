@@ -15,4 +15,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByPriority(TaskPriority priority);
 
     boolean existsByTitleAndUserId(String title, long userId);
+
+    boolean existsByTitleAndUserIdAndIdNot(String title, Long userId, Long id);
 }
