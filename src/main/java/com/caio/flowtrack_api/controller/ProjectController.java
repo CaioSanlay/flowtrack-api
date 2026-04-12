@@ -6,10 +6,12 @@ import com.caio.flowtrack_api.entity.Project;
 import com.caio.flowtrack_api.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/projects")
@@ -19,26 +21,28 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public Project create(@RequestBody @Valid ProjectRequestDTO projectRequestDTO) {
+    public ResponseEntity<Project> create(@RequestBody @Valid ProjectRequestDTO projectRequestDTO) {
         Project project = new Project();
         project.setName(projectRequestDTO.getName());
         project.setDescription(projectRequestDTO.getDescription());
 
-        return projectService.create(project);
+        Project createdProject = projectService.create(project);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
 }
 
     @GetMapping
-    public List<Project> findAll() {
-        return projectService.findAll();
+    public ResponseEntity<List<Project>> findAll() {
+        return ResponseEntity.ok(projectService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Optional<Project> findById(@PathVariable Long id) {
-        return projectService.findById(id);
+    public ResponseEntity<Project> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(projectService.findById(id));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         projectService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

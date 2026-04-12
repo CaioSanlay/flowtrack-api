@@ -12,10 +12,12 @@ import com.caio.flowtrack_api.enums.TaskStatus;
 import com.caio.flowtrack_api.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/tasks")
@@ -25,40 +27,43 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public Task create(@RequestBody @Valid TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<Task> create(@RequestBody @Valid TaskRequestDTO taskRequestDTO) {
         Task task = convertToEntity(taskRequestDTO);
-        return taskService.create(task);
+        Task createdTask = taskService.create(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }
 
     @GetMapping
-    public List<Task> findAll() {
-        return taskService.findAll();
+    public ResponseEntity<List<Task>> findAll() {
+        return ResponseEntity.ok(taskService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Optional<Task> findById(@PathVariable Long id) {
-        return taskService.findById(id);
+    public ResponseEntity<Task> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.findById(id));
     }
 
     @GetMapping("/status/{status}")
-    public List<Task> findByStatus(@PathVariable TaskStatus status) {
-        return taskService.findByStatus(status);
+    public ResponseEntity<List<Task>> findByStatus(@PathVariable TaskStatus status) {
+        return ResponseEntity.ok(taskService.findByStatus(status));
     }
 
     @GetMapping("/priority/{priority}")
-    public List<Task> findByPriority(@PathVariable TaskPriority priority){
-        return taskService.findByPriority(priority);
+    public ResponseEntity<List<Task>> findByPriority(@PathVariable TaskPriority priority){
+        return ResponseEntity.ok(taskService.findByPriority(priority));
     }
 
     @PutMapping("/{id}")
-    public Task update(@PathVariable Long id, @RequestBody @Valid TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody @Valid TaskRequestDTO taskRequestDTO) {
         Task task = convertToEntity(taskRequestDTO);
-        return taskService.update(id,task);
+        Task updatedTask = taskService.update(id, task);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         taskService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     private Task convertToEntity(TaskRequestDTO dto) {

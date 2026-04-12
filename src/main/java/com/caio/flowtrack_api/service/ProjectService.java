@@ -1,6 +1,7 @@
 package com.caio.flowtrack_api.service;
 
 import com.caio.flowtrack_api.entity.Project;
+import com.caio.flowtrack_api.exception.ResourceNotFoundException;
 import com.caio.flowtrack_api.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,16 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Optional<Project> findById(Long id) {
-        return projectRepository.findById(id);
+    public Project findById(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
     }
 
     public void delete(Long id) {
+        if (!projectRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Project not found");
+        }
+
         projectRepository.deleteById(id);
     }
 }
