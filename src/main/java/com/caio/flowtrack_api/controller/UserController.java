@@ -1,6 +1,7 @@
 package com.caio.flowtrack_api.controller;
 
 import com.caio.flowtrack_api.dto.UserRequestDTO;
+import com.caio.flowtrack_api.dto.UserResponseDTO;
 import com.caio.flowtrack_api.entity.User;
 import com.caio.flowtrack_api.service.UserService;
 import jakarta.validation.Valid;
@@ -10,7 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/users")
@@ -20,30 +22,43 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody @Valid UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO userRequestDTO) {
         User user = new User();
         user.setName(userRequestDTO.getName());
         user.setEmail(userRequestDTO.getEmail());
 
         User createdUser = userService.create(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponseDTO(createdUser));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> findAll() {
-        return ResponseEntity.ok(userService.findAll());
+    public ResponseEntity<List<UserResponseDTO>> findAll() {
+        List<UserResponseDTO> response = userService.findAll()
+                .stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.findById(id));
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
+        User user = userService.findById(id);
+        return ResponseEntity.ok(convertToResponseDTO(user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return  ResponseEntity.noContent().build();
+    }
+
+    private UserResponseDTO convertToResponseDTO(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 
 }

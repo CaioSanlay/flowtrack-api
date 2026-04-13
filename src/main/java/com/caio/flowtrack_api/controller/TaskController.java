@@ -3,6 +3,7 @@ package com.caio.flowtrack_api.controller;
 
 import com.caio.flowtrack_api.dto.TaskProjectRequestDTO;
 import com.caio.flowtrack_api.dto.TaskRequestDTO;
+import com.caio.flowtrack_api.dto.TaskResponseDTO;
 import com.caio.flowtrack_api.dto.TaskUserRequestDTO;
 import com.caio.flowtrack_api.entity.Project;
 import com.caio.flowtrack_api.entity.Task;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -27,37 +29,53 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<Task> create(@RequestBody @Valid TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<TaskResponseDTO> create(@RequestBody @Valid TaskRequestDTO taskRequestDTO) {
         Task task = convertToEntity(taskRequestDTO);
         Task createdTask = taskService.create(task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponseDTO(createdTask));
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> findAll() {
-        return ResponseEntity.ok(taskService.findAll());
+    public ResponseEntity<List<TaskResponseDTO>> findAll() {
+        List<TaskResponseDTO> response = taskService.findAll()
+                .stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.findById(id));
+    public ResponseEntity<TaskResponseDTO> findById(@PathVariable Long id) {
+        Task task = taskService.findById(id);
+        return ResponseEntity.ok(convertToResponseDTO(task));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Task>> findByStatus(@PathVariable TaskStatus status) {
-        return ResponseEntity.ok(taskService.findByStatus(status));
+    public ResponseEntity<List<TaskResponseDTO>> findByStatus(@PathVariable TaskStatus status) {
+        List<TaskResponseDTO> response = taskService.findByStatus(status)
+                .stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/priority/{priority}")
-    public ResponseEntity<List<Task>> findByPriority(@PathVariable TaskPriority priority){
-        return ResponseEntity.ok(taskService.findByPriority(priority));
+    public ResponseEntity<List<TaskResponseDTO>> findByPriority(@PathVariable TaskPriority priority){
+        List<TaskResponseDTO> response = taskService.findByPriority(priority)
+                .stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody @Valid TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<TaskResponseDTO> update(@PathVariable Long id, @RequestBody @Valid TaskRequestDTO taskRequestDTO) {
         Task task = convertToEntity(taskRequestDTO);
         Task updatedTask = taskService.update(id, task);
-        return ResponseEntity.ok(updatedTask);
+        return ResponseEntity.ok(convertToResponseDTO(updatedTask));
     }
 
     @DeleteMapping("/{id}")
@@ -85,5 +103,20 @@ public class TaskController {
         task.setProject(project);
 
         return task;
+    }
+
+    private TaskResponseDTO convertToResponseDTO(Task task) {
+        return new TaskResponseDTO(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDueDate(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getUser().getId(),
+                task.getUser().getName(),
+                task.getProject().getId(),
+                task.getProject().getName()
+        );
     }
 }
