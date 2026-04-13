@@ -137,6 +137,18 @@ http://localhost:8080
 - exception → centraliza o tratamento de erros
 - enums → define valores fixos como status e prioridade
 
+## Testes da API
+
+Os testes dos endpoints foram organizados em uma collection do Postman e estão disponíveis no repositório.
+
+### Collection do Postman
+
+Arquivo exportado:
+
+```text
+postman/FlowTrack API.postman_collection.json
+````
+
 ## Endpoints principais
 
 ### Usuários
